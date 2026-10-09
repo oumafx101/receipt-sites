@@ -1,0 +1,252 @@
+const receiptForm = document.getElementById('receiptForm');
+const formTitle = document.getElementById('formTitle');
+const merchantInput = document.getElementById('merchant');
+const amountInput = document.getElementById('amount');
+const categoryInput = document.getElementById('category');
+const paymentMethodInput = document.getElementById('paymentMethod');
+const dateInput = document.getElementById('date');
+const noteInput = document.getElementById('note');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+const searchInput = document.getElementById('searchInput');
+const categoryFilter = document.getElementById('categoryFilter');
+const resetFilterBtn = document.getElementById('resetFilterBtn');
+const receiptList = document.getElementById('receiptList');
+
+const totalReceiptsEl = document.getElementById('totalReceipts');
+const totalSpentEl = document.getElementById('totalSpent');
+const topCategoryEl = document.getElementById('topCategory');
+
+let receipts = [];
+let editingId = null;
+
+async function loadReceipts() {
+  try {
+    const response = await fetch('/api/receipts');
+    if (!response.ok) {
+      throw new Error('Unable to load receipts');
+    }
+
+    receipts = await response.json();
+    renderReceipts();
+    updateSummary();
+  } catch (error) {
+    receiptList.innerHTML = '<div class="empty-state">Unable to load receipts right now.</div>';
+    console.error(error);
+  }
+}
+
+async function loadSummary() {
+  try {
+    const response = await fetch('/api/receipts/summary');
+    if (!response.ok) {
+      throw new Error('Unable to load summary');
+    }
+
+    const summary = await response.json();
+    totalReceiptsEl.textContent = summary.totalReceipts ?? 0;
+    totalSpentEl.textContent = formatCurrency(summary.totalSpent ?? 0);
+    topCategoryEl.textContent = summary.categories?.[0]?.name ?? '—';
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function updateSummary() {
+  const totalReceipts = receipts.length;
+  const totalSpent = receipts.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const categoryMap = receipts.reduce((map, item) => {
+    const name = item.category || 'Other';
+    map[name] = (map[name] || 0) + Number(item.amount || 0);
+    return map;
+  }, {});
+
+  totalReceiptsEl.textContent = totalReceipts;
+  totalSpentEl.textContent = formatCurrency(totalSpent);
+
+  const topCategory = Object.entries(categoryMap).sort((a, b) => b[1] - a[1])[0];
+  topCategoryEl.textContent = topCategory ? topCategory[0] : '—';
+}
+
+function getFilteredReceipts() {
+  const query = searchInput.value.trim().toLowerCase();
+  const selectedCategory = categoryFilter.value;
+
+  return receipts.filter((receipt) => {
+    const matchesCategory = selectedCategory === 'all' || receipt.category === selectedCategory;
+    const searchableText = `${receipt.merchant} ${receipt.note || ''}`.toLowerCase();
+    const matchesSearch = !query || searchableText.includes(query);
+    return matchesCategory && matchesSearch;
+  });
+}
+
+function renderReceipts() {
+  const filtered = getFilteredReceipts();
+
+  if (!filtered.length) {
+    receiptList.innerHTML = '<div class="empty-state">No receipts match your filters.</div>';
+    return;
+  }
+
+  receiptList.innerHTML = filtered
+    .slice()
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .map((receipt) => `
+      <article class="receipt-item">
+        <div class="receipt-main">
+          <div class="receipt-topline">
+            <div class="receipt-name">${escapeHtml(receipt.merchant)}</div>
+            <span class="tag">${escapeHtml(receipt.category)}</span>
+          </div>
+          <div class="receipt-meta">
+            <span>${formatCurrency(receipt.amount)}</span>
+            <span>${formatDate(receipt.date)}</span>
+            <span>${escapeHtml(receipt.paymentMethod || 'Cash')}</span>
+          </div>
+          <div class="receipt-meta">
+            ${receipt.note ? `<span>${escapeHtml(receipt.note)}</span>` : '<span>No notes</span>'}
+          </div>
+        </div>
+        <div class="receipt-actions">
+          <button class="action-btn edit" type="button" data-action="edit" data-id="${receipt.id}">Edit</button>
+          <button class="action-btn delete" type="button" data-action="delete" data-id="${receipt.id}">Delete</button>
+        </div>
+      </article>
+    `)
+    .join('');
+}
+
+async function handleSubmit(event) {
+  event.preventDefault();
+
+  const payload = {
+    merchant: merchantInput.value,
+    amount: amountInput.value,
+    category: categoryInput.value,
+    paymentMethod: paymentMethodInput.value,
+    date: dateInput.value,
+    note: noteInput.value
+  };
+
+  try {
+    const method = editingId ? 'PUT' : 'POST';
+    const url = editingId ? `/api/receipts/${editingId}` : '/api/receipts';
+
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Something went wrong');
+    }
+
+    resetForm();
+    await loadReceipts();
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+function resetForm() {
+  receiptForm.reset();
+  editingId = null;
+  formTitle.textContent = 'Add receipt';
+  cancelEditBtn.style.display = 'none';
+}
+
+function prepareEditReceipt(id) {
+  const receipt = receipts.find((item) => Number(item.id) === Number(id));
+
+  if (!receipt) return;
+
+  editingId = Number(id);
+  formTitle.textContent = 'Edit receipt';
+  cancelEditBtn.style.display = 'inline-flex';
+
+  merchantInput.value = receipt.merchant || '';
+  amountInput.value = receipt.amount ?? '';
+  categoryInput.value = receipt.category || '';
+  paymentMethodInput.value = receipt.paymentMethod || 'Cash';
+  dateInput.value = receipt.date || '';
+  noteInput.value = receipt.note || '';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function handleDeleteReceipt(id) {
+  const shouldDelete = window.confirm('Delete this receipt?');
+  if (!shouldDelete) return;
+
+  try {
+    const response = await fetch(`/api/receipts/${id}`, { method: 'DELETE' });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Delete failed');
+    }
+
+    if (editingId === Number(id)) {
+      resetForm();
+    }
+
+    await loadReceipts();
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+receiptForm.addEventListener('submit', handleSubmit);
+searchInput.addEventListener('input', renderReceipts);
+categoryFilter.addEventListener('change', renderReceipts);
+resetFilterBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  categoryFilter.value = 'all';
+  renderReceipts();
+});
+cancelEditBtn.addEventListener('click', resetForm);
+
+receiptList.addEventListener('click', (event) => {
+  const target = event.target.closest('[data-action]');
+  if (!target) return;
+
+  const id = target.dataset.id;
+  const action = target.dataset.action;
+
+  if (action === 'edit') {
+    prepareEditReceipt(id);
+  }
+
+  if (action === 'delete') {
+    handleDeleteReceipt(id);
+  }
+});
+
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(Number(amount || 0));
+}
+
+function formatDate(dateString) {
+  if (!dateString) return 'Unknown date';
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+cancelEditBtn.style.display = 'none';
+loadReceipts();
+loadSummary();

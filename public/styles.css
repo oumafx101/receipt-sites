@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ReceiptHub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Expense tracker</p>
+          <h1>ReceiptHub</h1>
+        </div>
+        <button class="primary-btn" id="resetFilterBtn" type="button">Clear filters</button>
+      </header>
+
+      <main class="layout">
+        <section class="panel form-panel">
+          <div class="panel-heading">
+            <h2 id="formTitle">Add receipt</h2>
+          </div>
+
+          <form id="receiptForm">
+            <div class="form-grid">
+              <label>
+                <span>Merchant</span>
+                <input type="text" id="merchant" name="merchant" placeholder="Coffee Corner" required />
+              </label>
+
+              <label>
+                <span>Amount</span>
+                <input type="number" id="amount" name="amount" step="0.01" min="0" placeholder="24.99" required />
+              </label>
+
+              <label>
+                <span>Category</span>
+                <select id="category" name="category" required>
+                  <option value="">Select a category</option>
+                  <option value="Groceries">Groceries</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Dining">Dining</option>
+                  <option value="Office">Office</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Bills">Bills</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Payment method</span>
+                <select id="paymentMethod" name="paymentMethod">
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="Bank transfer">Bank transfer</option>
+                  <option value="Wallet">Wallet</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Date</span>
+                <input type="date" id="date" name="date" required />
+              </label>
+
+              <label class="full-span">
+                <span>Notes</span>
+                <textarea id="note" name="note" rows="3" placeholder="Optional notes..."></textarea>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="primary-btn">Save receipt</button>
+              <button type="button" class="secondary-btn" id="cancelEditBtn">Cancel</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel dashboard-panel">
+          <div class="summary-grid">
+            <article class="stat-card">
+              <span>Total receipts</span>
+              <strong id="totalReceipts">0</strong>
+            </article>
+            <article class="stat-card accent">
+              <span>Total spent</span>
+              <strong id="totalSpent">$0.00</strong>
+            </article>
+            <article class="stat-card">
+              <span>Top category</span>
+              <strong id="topCategory">-</strong>
+            </article>
+          </div>
+
+          <div class="filters">
+            <label>
+              <span>Search</span>
+              <input type="search" id="searchInput" placeholder="Search merchants or notes..." />
+            </label>
+            <label>
+              <span>Category</span>
+              <select id="categoryFilter">
+                <option value="all">All categories</option>
+                <option value="Groceries">Groceries</option>
+                <option value="Transport">Transport</option>
+                <option value="Dining">Dining</option>
+                <option value="Office">Office</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Bills">Bills</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="list-header">
+            <h2>Recent receipts</h2>
+          </div>
+
+          <div id="receiptList" class="receipt-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

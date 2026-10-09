@@ -1,2 +1,4 @@
-# receipt-sites
-A web application for managing and organizing digital receipts
+node_modules/
+.env
+.DS_Store
+npm-debug.log*

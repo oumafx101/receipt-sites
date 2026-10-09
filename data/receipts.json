@@ -1,0 +1,34 @@
+{
+  "receipts": [
+    {
+      "id": 1,
+      "merchant": "Green Market",
+      "amount": 42.75,
+      "category": "Groceries",
+      "paymentMethod": "Card",
+      "date": "2026-10-03",
+      "note": "Weekly essentials",
+      "createdAt": "2026-10-03T09:15:00.000Z"
+    },
+    {
+      "id": 2,
+      "merchant": "Metro Fuel",
+      "amount": 68.2,
+      "category": "Transport",
+      "paymentMethod": "Card",
+      "date": "2026-10-04",
+      "note": "Fuel refill",
+      "createdAt": "2026-10-04T15:32:00.000Z"
+    },
+    {
+      "id": 3,
+      "merchant": "Oak & Paper",
+      "amount": 19.99,
+      "category": "Office",
+      "paymentMethod": "Cash",
+      "date": "2026-10-05",
+      "note": "Notebook and pens",
+      "createdAt": "2026-10-05T11:11:00.000Z"
+    }
+  ]
+}
