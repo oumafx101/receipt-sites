@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ReceiptHub – Expense Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="authScreen" class="auth-screen active">
+      <div class="auth-container">
+        <div class="auth-header">
+          <h1>ReceiptHub</h1>
+          <p>Track expenses and organize receipts securely.</p>
+        </div>
+
+        <form id="loginForm" class="auth-form active">
+          <h2>Sign in</h2>
+          <label>
+            <span>Email</span>
+            <input type="email" id="loginEmail" placeholder="you@example.com" required />
+          </label>
+          <label>
+            <span>Password</span>
+            <input type="password" id="loginPassword" placeholder="••••••••" required />
+          </label>
+          <button type="submit" class="primary-btn full-width">Sign in</button>
+          <p class="auth-toggle">Don't have an account? <button type="button" class="link-btn" id="toggleRegister">Create one</button></p>
+        </form>
+
+        <form id="registerForm" class="auth-form">
+          <h2>Create account</h2>
+          <label>
+            <span>Full name</span>
+            <input type="text" id="registerName" placeholder="John Doe" required />
+          </label>
+          <label>
+            <span>Email</span>
+            <input type="email" id="registerEmail" placeholder="you@example.com" required />
+          </label>
+          <label>
+            <span>Password</span>
+            <input type="password" id="registerPassword" placeholder="••••••••" required />
+          </label>
+          <button type="submit" class="primary-btn full-width">Create account</button>
+          <p class="auth-toggle">Already have an account? <button type="button" class="link-btn" id="toggleLogin">Sign in</button></p>
+        </form>
+      </div>
+    </div>
+
+    <div id="appScreen" class="page-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Expense tracker</p>
+          <h1>ReceiptHub</h1>
+        </div>
+        <div class="topbar-right">
+          <span id="userName" class="user-greeting"></span>
+          <button class="secondary-btn" id="logoutBtn" type="button">Logout</button>
+          <button class="primary-btn" id="resetFilterBtn" type="button">Clear filters</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel form-panel">
+          <div class="panel-heading">
+            <h2 id="formTitle">Add receipt</h2>
+          </div>
+
+          <form id="receiptForm">
+            <div class="form-grid">
+              <label>
+                <span>Merchant</span>
+                <input type="text" id="merchant" placeholder="Coffee Corner" required />
+              </label>
+
+              <label>
+                <span>Amount</span>
+                <input type="number" id="amount" step="0.01" min="0" placeholder="24.99" required />
+              </label>
+
+              <label>
+                <span>Category</span>
+                <select id="category" required>
+                  <option value="">Select a category</option>
+                  <option value="Groceries">Groceries</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Dining">Dining</option>
+                  <option value="Office">Office</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Bills">Bills</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Payment method</span>
+                <select id="paymentMethod">
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="Bank transfer">Bank transfer</option>
+                  <option value="Wallet">Wallet</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Date</span>
+                <input type="date" id="date" required />
+              </label>
+
+              <label class="full-span">
+                <span>Notes</span>
+                <textarea id="note" rows="3" placeholder="Optional notes..."></textarea>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="primary-btn">Save receipt</button>
+              <button type="button" class="secondary-btn" id="cancelEditBtn">Cancel</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel dashboard-panel">
+          <div class="summary-grid">
+            <article class="stat-card">
+              <span>Total receipts</span>
+              <strong id="totalReceipts">0</strong>
+            </article>
+            <article class="stat-card accent">
+              <span>Total spent</span>
+              <strong id="totalSpent">$0.00</strong>
+            </article>
+            <article class="stat-card">
+              <span>Top category</span>
+              <strong id="topCategory">-</strong>
+            </article>
+          </div>
+
+          <div class="filters">
+            <label>
+              <span>Search</span>
+              <input type="search" id="searchInput" placeholder="Search merchants or notes..." />
+            </label>
+            <label>
+              <span>Category</span>
+              <select id="categoryFilter">
+                <option value="all">All categories</option>
+                <option value="Groceries">Groceries</option>
+                <option value="Transport">Transport</option>
+                <option value="Dining">Dining</option>
+                <option value="Office">Office</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Bills">Bills</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="list-header">
+            <h2>Recent receipts</h2>
+          </div>
+
+          <div id="receiptList" class="receipt-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

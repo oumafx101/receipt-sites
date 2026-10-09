@@ -1,318 +1,378 @@
-* {
-  box-sizing: border-box;
-}
+const authScreen = document.getElementById('authScreen');
+const appScreen = document.getElementById('appScreen');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const toggleRegister = document.getElementById('toggleRegister');
+const toggleLogin = document.getElementById('toggleLogin');
+const logoutBtn = document.getElementById('logoutBtn');
+const userName = document.getElementById('userName');
 
-:root {
-  --bg: #f3f7ff;
-  --panel: #ffffff;
-  --panel-alt: #f6f8ff;
-  --primary: #3b82f6;
-  --primary-dark: #1d4ed8;
-  --accent: #10b981;
-  --text: #14213d;
-  --muted: #667085;
-  --border: #dfe9f5;
-  --danger: #ef4444;
-  --shadow: 0 20px 45px rgba(17, 24, 39, 0.08);
-}
+const receiptForm = document.getElementById('receiptForm');
+const formTitle = document.getElementById('formTitle');
+const merchantInput = document.getElementById('merchant');
+const amountInput = document.getElementById('amount');
+const categoryInput = document.getElementById('category');
+const paymentMethodInput = document.getElementById('paymentMethod');
+const dateInput = document.getElementById('date');
+const noteInput = document.getElementById('note');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+const searchInput = document.getElementById('searchInput');
+const categoryFilter = document.getElementById('categoryFilter');
+const resetFilterBtn = document.getElementById('resetFilterBtn');
+const receiptList = document.getElementById('receiptList');
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(180deg, #edf5ff 0%, #f8fbff 100%);
-  color: var(--text);
-}
+const totalReceiptsEl = document.getElementById('totalReceipts');
+const totalSpentEl = document.getElementById('totalSpent');
+const topCategoryEl = document.getElementById('topCategory');
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+let receipts = [];
+let editingId = null;
+let currentUser = null;
+let authToken = null;
 
-.page-shell {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 32px 20px 60px;
-}
+function init() {
+  const token = localStorage.getItem('authToken');
+  const user = localStorage.getItem('currentUser');
 
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 26px;
-}
-
-.eyebrow {
-  margin: 0 0 6px;
-  font-size: 0.76rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--primary);
-  font-weight: 700;
-}
-
-h1,
-h2,
-p {
-  margin: 0;
-}
-
-h1 {
-  font-size: clamp(2rem, 2.2vw, 2.8rem);
-}
-
-.layout {
-  display: grid;
-  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
-  gap: 24px;
-}
-
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  box-shadow: var(--shadow);
-}
-
-.form-panel {
-  padding: 24px;
-}
-
-.panel-heading {
-  margin-bottom: 22px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 0.9rem;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.full-span {
-  grid-column: 1 / -1;
-}
-
-input,
-select,
-textarea {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--panel-alt);
-  padding: 12px 14px;
-  color: var(--text);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
-}
-
-textarea {
-  resize: vertical;
-  min-height: 90px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 22px;
-}
-
-.primary-btn,
-.secondary-btn,
-.action-btn {
-  border: none;
-  border-radius: 12px;
-  padding: 11px 18px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.primary-btn {
-  background: var(--primary);
-  color: white;
-}
-
-.primary-btn:hover,
-.secondary-btn:hover,
-.action-btn:hover {
-  transform: translateY(-1px);
-}
-
-.secondary-btn {
-  background: #edf3ff;
-  color: var(--text);
-}
-
-.dashboard-panel {
-  padding: 24px;
-}
-
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 22px;
-}
-
-.stat-card {
-  background: linear-gradient(135deg, #f5f8ff 0%, #eef4ff 100%);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 18px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.stat-card.accent {
-  background: linear-gradient(135deg, #ecfdf5 0%, #dffcf5 100%);
-}
-
-.stat-card span {
-  font-size: 0.8rem;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.stat-card strong {
-  font-size: clamp(1.3rem, 2vw, 2rem);
-}
-
-.filters {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(200px, 0.8fr);
-  gap: 16px;
-  margin-bottom: 22px;
-}
-
-.list-header {
-  margin-bottom: 16px;
-}
-
-.receipt-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.receipt-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 15px;
-  align-items: center;
-  background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 18px 16px;
-}
-
-.receipt-main {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.receipt-topline {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-
-.receipt-name {
-  font-weight: 800;
-  font-size: 1.08rem;
-}
-
-.tag {
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  background: #edf3ff;
-  color: var(--primary-dark);
-}
-
-.receipt-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 0.84rem;
-}
-
-.receipt-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.action-btn {
-  padding: 8px 12px;
-  font-size: 0.82rem;
-}
-
-.action-btn.edit {
-  background: #edf3ff;
-  color: var(--primary-dark);
-}
-
-.action-btn.delete {
-  background: #fff1f2;
-  color: var(--danger);
-}
-
-.empty-state {
-  background: var(--panel-alt);
-  border: 1px dashed var(--border);
-  border-radius: 16px;
-  padding: 28px 20px;
-  text-align: center;
-  color: var(--muted);
-}
-
-@media (max-width: 900px) {
-  .layout {
-    grid-template-columns: 1fr;
+  if (token && user) {
+    authToken = token;
+    currentUser = JSON.parse(user);
+    showAppScreen();
+    loadReceipts();
+    loadSummary();
+  } else {
+    showAuthScreen();
   }
 }
 
-@media (max-width: 620px) {
-  .topbar,
-  .form-actions,
-  .receipt-item,
-  .receipt-topline,
-  .filters,
-  .summary-grid {
-    grid-template-columns: 1fr;
-    display: grid;
+function showAuthScreen() {
+  authScreen.classList.add('active');
+  appScreen.classList.remove('active');
+  loginForm.classList.add('active');
+  registerForm.classList.remove('active');
+}
+
+function showAppScreen() {
+  authScreen.classList.remove('active');
+  appScreen.classList.add('active');
+  if (currentUser) {
+    userName.textContent = `Welcome, ${currentUser.name}!`;
+  }
+}
+
+toggleRegister.addEventListener('click', (e) => {
+  e.preventDefault();
+  loginForm.classList.remove('active');
+  registerForm.classList.add('active');
+});
+
+toggleLogin.addEventListener('click', (e) => {
+  e.preventDefault();
+  registerForm.classList.remove('active');
+  loginForm.classList.add('active');
+});
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Login failed');
+    }
+
+    const data = await response.json();
+    authToken = data.token;
+    currentUser = data.user;
+
+    localStorage.setItem('authToken', authToken);
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+    loginForm.reset();
+    showAppScreen();
+    await loadReceipts();
+    await loadSummary();
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+registerForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('registerName').value;
+  const email = document.getElementById('registerEmail').value;
+  const password = document.getElementById('registerPassword').value;
+
+  try {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Registration failed');
+    }
+
+    const data = await response.json();
+    authToken = data.token;
+    currentUser = data.user;
+
+    localStorage.setItem('authToken', authToken);
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+    registerForm.reset();
+    showAppScreen();
+    await loadReceipts();
+    await loadSummary();
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+logoutBtn.addEventListener('click', () => {
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('currentUser');
+  authToken = null;
+  currentUser = null;
+  receipts = [];
+  showAuthScreen();
+});
+
+async function apiCall(endpoint, method = 'GET', body = null) {
+  const options = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`
+    }
+  };
+
+  if (body) {
+    options.body = JSON.stringify(body);
   }
 
-  .form-grid {
-    grid-template-columns: 1fr;
+  const response = await fetch(endpoint, options);
+
+  if (response.status === 401) {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    showAuthScreen();
+    throw new Error('Session expired. Please login again.');
   }
 
-  .receipt-item {
-    padding: 16px;
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || 'API request failed');
   }
+
+  return response.json();
+}
+
+async function loadReceipts() {
+  try {
+    receipts = await apiCall('/api/receipts');
+    renderReceipts();
+    updateSummary();
+  } catch (error) {
+    receiptList.innerHTML = `<div class="empty-state">${error.message}</div>`;
+  }
+}
+
+async function loadSummary() {
+  try {
+    const summary = await apiCall('/api/receipts/summary');
+    totalReceiptsEl.textContent = summary.totalReceipts ?? 0;
+    totalSpentEl.textContent = formatCurrency(summary.totalSpent ?? 0);
+    topCategoryEl.textContent = summary.categories?.[0]?.name ?? '—';
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function updateSummary() {
+  const totalReceipts = receipts.length;
+  const totalSpent = receipts.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const categoryMap = receipts.reduce((map, item) => {
+    const name = item.category || 'Other';
+    map[name] = (map[name] || 0) + Number(item.amount || 0);
+    return map;
+  }, {});
+
+  totalReceiptsEl.textContent = totalReceipts;
+  totalSpentEl.textContent = formatCurrency(totalSpent);
+
+  const topCategory = Object.entries(categoryMap).sort((a, b) => b[1] - a[1])[0];
+  topCategoryEl.textContent = topCategory ? topCategory[0] : '—';
+}
+
+function getFilteredReceipts() {
+  const query = searchInput.value.trim().toLowerCase();
+  const selectedCategory = categoryFilter.value;
+
+  return receipts.filter((receipt) => {
+    const matchesCategory = selectedCategory === 'all' || receipt.category === selectedCategory;
+    const searchableText = `${receipt.merchant} ${receipt.note || ''}`.toLowerCase();
+    const matchesSearch = !query || searchableText.includes(query);
+    return matchesCategory && matchesSearch;
+  });
+}
+
+function renderReceipts() {
+  const filtered = getFilteredReceipts();
+
+  if (!filtered.length) {
+    receiptList.innerHTML = '<div class="empty-state">No receipts match your filters.</div>';
+    return;
+  }
+
+  receiptList.innerHTML = filtered
+    .slice()
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .map((receipt) => `
+      <article class="receipt-item">
+        <div class="receipt-main">
+          <div class="receipt-topline">
+            <div class="receipt-name">${escapeHtml(receipt.merchant)}</div>
+            <span class="tag">${escapeHtml(receipt.category)}</span>
+          </div>
+          <div class="receipt-meta">
+            <span>${formatCurrency(receipt.amount)}</span>
+            <span>${formatDate(receipt.date)}</span>
+            <span>${escapeHtml(receipt.paymentMethod || 'Cash')}</span>
+          </div>
+          <div class="receipt-meta">
+            ${receipt.note ? `<span>${escapeHtml(receipt.note)}</span>` : '<span>No notes</span>'}
+          </div>
+        </div>
+        <div class="receipt-actions">
+          <button class="action-btn edit" type="button" data-action="edit" data-id="${receipt._id}">Edit</button>
+          <button class="action-btn delete" type="button" data-action="delete" data-id="${receipt._id}">Delete</button>
+        </div>
+      </article>
+    `)
+    .join('');
+}
+
+receiptForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const payload = {
+    merchant: merchantInput.value,
+    amount: amountInput.value,
+    category: categoryInput.value,
+    paymentMethod: paymentMethodInput.value,
+    date: dateInput.value,
+    note: noteInput.value
+  };
+
+  try {
+    if (editingId) {
+      await apiCall(`/api/receipts/${editingId}`, 'PUT', payload);
+    } else {
+      await apiCall('/api/receipts', 'POST', payload);
+    }
+
+    resetForm();
+    await loadReceipts();
+    await loadSummary();
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+function resetForm() {
+  receiptForm.reset();
+  editingId = null;
+  formTitle.textContent = 'Add receipt';
+  cancelEditBtn.style.display = 'none';
+}
+
+function prepareEditReceipt(id) {
+  const receipt = receipts.find((item) => item._id === id);
+  if (!receipt) return;
+
+  editingId = id;
+  formTitle.textContent = 'Edit receipt';
+  cancelEditBtn.style.display = 'inline-flex';
+
+  merchantInput.value = receipt.merchant || '';
+  amountInput.value = receipt.amount ?? '';
+  categoryInput.value = receipt.category || '';
+  paymentMethodInput.value = receipt.paymentMethod || 'Cash';
+  dateInput.value = receipt.date ? receipt.date.split('T')[0] : '';
+  noteInput.value = receipt.note || '';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function handleDeleteReceipt(id) {
+  const shouldDelete = window.confirm('Delete this receipt?');
+  if (!shouldDelete) return;
+
+  try {
+    await apiCall(`/api/receipts/${id}`, 'DELETE');
+    if (editingId === id) resetForm();
+    await loadReceipts();
+    await loadSummary();
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+searchInput.addEventListener('input', renderReceipts);
+categoryFilter.addEventListener('change', renderReceipts);
+resetFilterBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  categoryFilter.value = 'all';
+  renderReceipts();
+});
+cancelEditBtn.addEventListener('click', resetForm);
+
+receiptList.addEventListener('click', (event) => {
+  const target = event.target.closest('[data-action]');
+  if (!target) return;
+
+  const id = target.dataset.id;
+  const action = target.dataset.action;
+
+  if (action === 'edit') prepareEditReceipt(id);
+  if (action === 'delete') handleDeleteReceipt(id);
+});
+
+cancelEditBtn.style.display = 'none';
+init();
+
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(Number(amount || 0));
+}
+
+function formatDate(dateString) {
+  if (!dateString) return 'Unknown date';
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
