@@ -20,7 +20,6 @@ const searchInput = document.getElementById('searchInput');
 const categoryFilter = document.getElementById('categoryFilter');
 const resetFilterBtn = document.getElementById('resetFilterBtn');
 const receiptList = document.getElementById('receiptList');
-
 const totalReceiptsEl = document.getElementById('totalReceipts');
 const totalSpentEl = document.getElementById('totalSpent');
 const topCategoryEl = document.getElementById('topCategory');
@@ -60,20 +59,19 @@ function showAppScreen() {
   }
 }
 
-toggleRegister.addEventListener('click', (e) => {
-  e.preventDefault();
+toggleRegister.addEventListener('click', () => {
   loginForm.classList.remove('active');
   registerForm.classList.add('active');
 });
 
-toggleLogin.addEventListener('click', (e) => {
-  e.preventDefault();
+toggleLogin.addEventListener('click', () => {
   registerForm.classList.remove('active');
   loginForm.classList.add('active');
 });
 
-loginForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
+loginForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
   const email = document.getElementById('loginEmail').value;
   const password = document.getElementById('loginPassword').value;
 
@@ -92,21 +90,21 @@ loginForm.addEventListener('submit', async (e) => {
     const data = await response.json();
     authToken = data.token;
     currentUser = data.user;
-
     localStorage.setItem('authToken', authToken);
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
     loginForm.reset();
     showAppScreen();
-    await loadReceipts();
-    await loadSummary();
+    loadReceipts();
+    loadSummary();
   } catch (error) {
     alert(error.message);
   }
 });
 
-registerForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
+registerForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
   const name = document.getElementById('registerName').value;
   const email = document.getElementById('registerEmail').value;
   const password = document.getElementById('registerPassword').value;
@@ -126,14 +124,13 @@ registerForm.addEventListener('submit', async (e) => {
     const data = await response.json();
     authToken = data.token;
     currentUser = data.user;
-
     localStorage.setItem('authToken', authToken);
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
     registerForm.reset();
     showAppScreen();
-    await loadReceipts();
-    await loadSummary();
+    loadReceipts();
+    loadSummary();
   } catch (error) {
     alert(error.message);
   }
@@ -157,9 +154,7 @@ async function apiCall(endpoint, method = 'GET', body = null) {
     }
   };
 
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
+  if (body) options.body = JSON.stringify(body);
 
   const response = await fetch(endpoint, options);
 
@@ -172,7 +167,7 @@ async function apiCall(endpoint, method = 'GET', body = null) {
 
   if (!response.ok) {
     const data = await response.json();
-    throw new Error(data.message || 'API request failed');
+    throw new Error(data.message || 'Request failed');
   }
 
   return response.json();
@@ -263,8 +258,8 @@ function renderReceipts() {
     .join('');
 }
 
-receiptForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
+receiptForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
 
   const payload = {
     merchant: merchantInput.value,
@@ -283,8 +278,8 @@ receiptForm.addEventListener('submit', async (e) => {
     }
 
     resetForm();
-    await loadReceipts();
-    await loadSummary();
+    loadReceipts();
+    loadSummary();
   } catch (error) {
     alert(error.message);
   }
@@ -322,8 +317,8 @@ async function handleDeleteReceipt(id) {
   try {
     await apiCall(`/api/receipts/${id}`, 'DELETE');
     if (editingId === id) resetForm();
-    await loadReceipts();
-    await loadSummary();
+    loadReceipts();
+    loadSummary();
   } catch (error) {
     alert(error.message);
   }

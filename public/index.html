@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ReceiptHub – Expense Tracker</title>
+    <title>ReceiptHub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -14,36 +14,36 @@
       <div class="auth-container">
         <div class="auth-header">
           <h1>ReceiptHub</h1>
-          <p>Track expenses and organize receipts securely.</p>
+          <p>Track expenses, receipts, and spending.</p>
         </div>
 
         <form id="loginForm" class="auth-form active">
           <h2>Sign in</h2>
           <label>
             <span>Email</span>
-            <input type="email" id="loginEmail" placeholder="you@example.com" required />
+            <input id="loginEmail" type="email" placeholder="you@example.com" required />
           </label>
           <label>
             <span>Password</span>
-            <input type="password" id="loginPassword" placeholder="••••••••" required />
+            <input id="loginPassword" type="password" placeholder="••••••••" required />
           </label>
           <button type="submit" class="primary-btn full-width">Sign in</button>
-          <p class="auth-toggle">Don't have an account? <button type="button" class="link-btn" id="toggleRegister">Create one</button></p>
+          <p class="auth-toggle">Need an account? <button type="button" class="link-btn" id="toggleRegister">Create one</button></p>
         </form>
 
         <form id="registerForm" class="auth-form">
           <h2>Create account</h2>
           <label>
             <span>Full name</span>
-            <input type="text" id="registerName" placeholder="John Doe" required />
+            <input id="registerName" type="text" placeholder="Jane Doe" required />
           </label>
           <label>
             <span>Email</span>
-            <input type="email" id="registerEmail" placeholder="you@example.com" required />
+            <input id="registerEmail" type="email" placeholder="you@example.com" required />
           </label>
           <label>
             <span>Password</span>
-            <input type="password" id="registerPassword" placeholder="••••••••" required />
+            <input id="registerPassword" type="password" placeholder="••••••••" required />
           </label>
           <button type="submit" class="primary-btn full-width">Create account</button>
           <p class="auth-toggle">Already have an account? <button type="button" class="link-btn" id="toggleLogin">Sign in</button></p>
@@ -59,8 +59,8 @@
         </div>
         <div class="topbar-right">
           <span id="userName" class="user-greeting"></span>
-          <button class="secondary-btn" id="logoutBtn" type="button">Logout</button>
-          <button class="primary-btn" id="resetFilterBtn" type="button">Clear filters</button>
+          <button id="logoutBtn" class="secondary-btn" type="button">Logout</button>
+          <button id="resetFilterBtn" class="primary-btn" type="button">Clear filters</button>
         </div>
       </header>
 

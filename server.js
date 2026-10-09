@@ -8,7 +8,7 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key_change_this';
+const JWT_SECRET = process.env.JWT_SECRET || 'change_this_in_production';
 
 app.use(cors());
 app.use(express.json());
@@ -16,12 +16,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 mongoose
   .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/receipt-db', {
-    serverSelectionTimeoutMS: 5000
+    serverSelectionTimeoutMS: 5000,
   })
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => {
     console.error('MongoDB connection error:', err.message);
-    console.log('Starting server without MongoDB connection. Please set MONGODB_URI in .env');
+    console.log('Starting app with MongoDB fallback. Set MONGODB_URI in .env for a real database connection.');
   });
 
 const userSchema = new mongoose.Schema({
@@ -46,7 +46,9 @@ const User = mongoose.models.User || mongoose.model('User', userSchema);
 const Receipt = mongoose.models.Receipt || mongoose.model('Receipt', receiptSchema);
 
 function verifyToken(req, res, next) {
-  const token = req.headers.authorization?.split(' ')[1];
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
   if (!token) {
     return res.status(401).json({ message: 'Access token required' });
   }
@@ -72,19 +74,23 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ message: 'Email, password, and name are required' });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
     const hashedPassword = await bcryptjs.hash(password, 10);
-    const user = new User({ email, password: hashedPassword, name });
-    await user.save();
+    const user = await User.create({
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      name
+    });
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
+
     res.status(201).json({
       token,
-      user: { id: user._id, email: user.email, name: user.name }
+      user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
     res.status(500).json({ message: 'Registration failed', error: error.message });
@@ -99,20 +105,21 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const isPasswordValid = await bcryptjs.compare(password, user.password);
-    if (!isPasswordValid) {
+    const isValidPassword = await bcryptjs.compare(password, user.password);
+    if (!isValidPassword) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
+
     res.json({
       token,
-      user: { id: user._id, email: user.email, name: user.name }
+      user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
     res.status(500).json({ message: 'Login failed', error: error.message });
@@ -131,6 +138,7 @@ app.get('/api/receipts', verifyToken, async (req, res) => {
 app.get('/api/receipts/summary', verifyToken, async (req, res) => {
   try {
     const receipts = await Receipt.find({ userId: req.userId });
+
     const totalSpent = receipts.reduce((sum, receipt) => sum + Number(receipt.amount || 0), 0);
     const categories = receipts.reduce((map, receipt) => {
       const category = receipt.category || 'Uncategorized';
@@ -159,7 +167,7 @@ app.post('/api/receipts', verifyToken, async (req, res) => {
       return res.status(400).json({ message: 'Merchant, amount, category, and date are required' });
     }
 
-    const receipt = new Receipt({
+    const receipt = await Receipt.create({
       userId: req.userId,
       merchant: merchant.trim(),
       amount: Number(amount),
@@ -169,7 +177,6 @@ app.post('/api/receipts', verifyToken, async (req, res) => {
       note: note ? note.trim() : ''
     });
 
-    await receipt.save();
     res.status(201).json(receipt);
   } catch (error) {
     res.status(500).json({ message: 'Failed to create receipt', error: error.message });

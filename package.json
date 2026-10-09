@@ -1,7 +1,7 @@
 {
   "name": "receipt-site",
   "version": "2.0.0",
-  "description": "Full-stack receipt management web app with MongoDB and authentication",
+  "description": "Full-stack receipt management app with MongoDB and JWT auth",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

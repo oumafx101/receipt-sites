@@ -1,15 +1,15 @@
-# ReceiptHub - Expense Tracker
+# ReceiptHub
 
-A full-stack receipt management application with MongoDB and JSON Web Token authentication.
+A full-stack receipt management app with MongoDB and JWT authentication.
 
 ## Features
-- User registration and login
-- JWT-authenticated receipt API
+- Secure user registration and login
+- JWT-based authentication for all receipt APIs
 - Add, edit, delete, search, and filter receipts
-- Dashboard with totals and category breakdowns
-- Responsive front-end
+- Dashboard with totals and top category summary
+- Responsive web UI
 
-## Tech Stack
+## Stack
 - Node.js + Express
 - MongoDB + Mongoose
 - JWT + bcryptjs
@@ -17,30 +17,26 @@ A full-stack receipt management application with MongoDB and JSON Web Token auth
 
 ## Setup
 
-### 1. Install dependencies
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-### 2. Configure environment
-Create a `.env` file in the project root:
-
+2. Create a `.env` file:
 ```env
 PORT=3000
 MONGODB_URI=mongodb://localhost:27017/receipt-db
-JWT_SECRET=replace_with_a_secure_secret
+JWT_SECRET=change_this_to_a_secure_secret
 ```
 
-If you use MongoDB Atlas, set `MONGODB_URI` to your Atlas connection string instead.
-
-### 3. Run the app
+3. Start the app:
 ```bash
 npm start
 ```
 
-Open `http://localhost:3000`
+Then open http://localhost:3000
 
-## API routes
+## API endpoints
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `GET /api/receipts`
@@ -49,7 +45,4 @@ Open `http://localhost:3000`
 - `PUT /api/receipts/:id`
 - `DELETE /api/receipts/:id`
 
-## Notes
-- All receipt routes require a bearer token.
-- Passwords are hashed with bcryptjs.
-- Data is stored per authenticated user in MongoDB.
+All receipt routes require a bearer token.

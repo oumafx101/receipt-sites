@@ -60,7 +60,7 @@ textarea {
   border-radius: 24px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   padding: 40px 32px;
 }
 
@@ -71,17 +71,15 @@ textarea {
 
 .auth-header h1 {
   margin: 0 0 8px;
-  font-size: 2.2rem;
+  font-size: 2.3rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .auth-header p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.95rem;
 }
 
 .auth-form {
@@ -93,7 +91,7 @@ textarea {
 }
 
 .auth-form h2 {
-  margin: 0 0 24px;
+  margin: 0 0 20px;
   font-size: 1.5rem;
 }
 
@@ -102,8 +100,8 @@ textarea {
   flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
-  font-size: 0.9rem;
   color: var(--muted);
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -124,9 +122,9 @@ textarea {
 
 .auth-toggle {
   text-align: center;
-  font-size: 0.9rem;
+  margin-top: 18px;
   color: var(--muted);
-  margin-top: 20px;
+  font-size: 0.9rem;
 }
 
 .link-btn {
@@ -140,7 +138,6 @@ textarea {
 
 .full-width {
   width: 100%;
-  margin-top: 8px;
 }
 
 .topbar {
@@ -159,13 +156,12 @@ textarea {
 
 .user-greeting {
   font-size: 0.9rem;
-  color: var(--text);
   font-weight: 600;
 }
 
 .eyebrow {
   margin: 0 0 6px;
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--primary);
@@ -350,7 +346,6 @@ textarea {
 
 .receipt-topline {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
@@ -381,7 +376,6 @@ textarea {
 .receipt-actions {
   display: flex;
   gap: 10px;
-  align-items: center;
 }
 
 .action-btn {
@@ -416,21 +410,16 @@ textarea {
 
 @media (max-width: 620px) {
   .topbar,
-  .form-actions,
   .receipt-item,
-  .receipt-topline,
   .filters,
-  .summary-grid {
-    grid-template-columns: 1fr;
+  .summary-grid,
+  .form-actions {
     display: grid;
+    grid-template-columns: 1fr;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
-  }
-
-  .receipt-item {
-    padding: 16px;
   }
 
   .topbar-right {
